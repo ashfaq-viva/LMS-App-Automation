@@ -1,0 +1,11 @@
+appId: com.lms.app.dev
+name: TC-05 Invalid email
+tags: [auth, validation]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow:
+    file: ../../components/submit-login.yaml
+    env:
+      EMAIL: "test97"
+      PASSWORD: "12345"
+- assertVisible: "Invalid email address"

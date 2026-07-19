@@ -1,0 +1,12 @@
+appId: com.lms.app.dev
+name: TC-02 Unconfirmed email
+tags: [auth, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow:
+    file: ../../components/submit-login.yaml
+    env:
+      EMAIL: "test@gmail.com"
+      PASSWORD: "12345"
+- assertVisible: "Verify your email address to continue. Check your inbox or "
+- assertVisible: "Resend The Confirmation Link"

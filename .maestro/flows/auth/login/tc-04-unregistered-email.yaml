@@ -1,0 +1,12 @@
+appId: com.lms.app.dev
+name: TC-04 Unregistered email
+tags: [auth, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow:
+    file: ../../components/submit-login.yaml
+    env:
+      EMAIL: "test97@gmail.com"
+      PASSWORD: "12345"
+- assertVisible: "This email isn't registered"
+- assertVisible: "This email address hasn't been registered yet. Please create an account by clicking "

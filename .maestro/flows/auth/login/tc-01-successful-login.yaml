@@ -1,0 +1,10 @@
+appId: com.lms.app.dev
+name: TC-01 Successful login
+tags: [auth, smoke]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow:
+    file: ../../components/submit-login.yaml
+    env:
+      EMAIL: "${VALID_EMAIL}"
+      PASSWORD: "${VALID_PASSWORD}"
