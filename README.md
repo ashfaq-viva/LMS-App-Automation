@@ -4,7 +4,7 @@ Maestro end-to-end automation workspace for the Android LMS application.
 
 ## Test Coverage
 
-The authentication suite contains 24 automated Maestro flows covering login, password reset, check-mail, and account creation. Two additional approved cases are blocked by missing accessibility identifiers. Shared flows keep common navigation and form actions reusable. See [`test-cases/test-cases.csv`](test-cases/test-cases.csv) for the complete test inventory.
+The authentication suite contains 24 automated Maestro flows (`TC-01` through `TC-24`) covering login, password reset, check-mail, and account creation. Two additional approved cases (`TC-25` and `TC-26`) are blocked by missing accessibility identifiers. Shared flows keep common navigation and form actions reusable. See [`test-cases/test-cases.csv`](test-cases/test-cases.csv) for the complete test inventory.
 
 Flows use the Android application ID `com.lms.app.dev`. Smoke, regression, and validation coverage is identified by each flow's `tags`; the `smoke/` and `regression/` directories are placeholders for future standalone suites.
 
@@ -38,10 +38,10 @@ adb install -r apps/app-development-debug.apk
 ├── .maestro/
 │   ├── flows/
 │   │   ├── auth/
-│   │   │   ├── login/            # TC-01 through TC-06, plus TC-28
+│   │   │   ├── login/            # TC-01 through TC-06, plus TC-24
 │   │   │   ├── forgot-password/  # TC-07 through TC-10
 │   │   │   ├── check-mail/       # TC-11 through TC-13
-│   │   │   └── create-account/   # Automated create-account cases
+│   │   │   └── create-account/   # TC-14 through TC-23
 │   │   ├── components/            # Shared navigation and form actions
 │   │   ├── regression/            # Reserved standalone suite
 │   │   └── smoke/                 # Reserved standalone suite
@@ -88,7 +88,7 @@ Run one case:
   .maestro/flows/auth/login/tc-05-invalid-email.yaml
 ```
 
-The suite runs flows sequentially because simultaneous Maestro CLI sessions conflict on one emulator. Close Maestro Studio before running the CLI suite. Generated JUnit files, logs, Maestro debug output, and Allure results are written under `artifacts/`.
+The suite runs flows sequentially because simultaneous Maestro CLI sessions conflict on one emulator. Close Maestro Studio before running the CLI suite. Generated JUnit files, logs, Maestro debug output, per-flow recordings, failure screenshots, and Allure results are written under `artifacts/`.
 
 The runner expects Maestro at `$HOME/.maestro/bin/maestro`. Set `MAESTRO_BIN` to use another installation path, or set `MAESTRO_ARTIFACTS_DIR` to change the output directory.
 
@@ -115,8 +115,8 @@ GitHub's **Run workflow** form does not support file-upload inputs. Upload the A
 
 ### Reports
 
-Each workflow run includes a pass/fail table in the GitHub Actions summary. Download the `maestro-results-*` artifact for the Allure HTML report, JUnit XML files, Maestro screenshots, console logs, and debug output. Open `artifacts/allure-report/index.html` from the downloaded artifact to view the report locally.
+Each workflow run includes a pass/fail table in the GitHub Actions summary. Every Allure test result includes its screen recording, and failed results also include a screenshot of the failure state. Download the `maestro-results-*` artifact for the Allure HTML report, JUnit XML files, recordings, screenshots, console logs, and debug output. Open `artifacts/allure-report/index.html` from the downloaded artifact to view the report locally.
 
 The workflow also publishes the latest Allure report to GitHub Pages. Before the first run, open **Settings > Pages** and set **Source** to **GitHub Actions**. After deployment, the report URL appears in the `Deploy Allure report to GitHub Pages` job and in the repository's **Deployments** section.
 
-Console logs and Maestro debug files remain in the downloadable workflow artifact and are not embedded in the public Pages report. Test credentials are redacted from text-based artifacts before upload.
+Console logs and Maestro debug files remain in the downloadable workflow artifact and are not embedded in the public Pages report. Test credentials are redacted from text-based artifacts before upload. Recordings and failure screenshots are embedded in Allure and therefore published with the Pages report.

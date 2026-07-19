@@ -2,7 +2,7 @@ const crypto = require('node:crypto')
 const fs = require('node:fs')
 const path = require('node:path')
 
-function addResult([flowPath, exitCode, startedAt, stoppedAt, outputDir]) {
+function addResult([flowPath, exitCode, startedAt, stoppedAt, outputDir, recordingPath, screenshotPath]) {
   const flow = fs.readFileSync(flowPath, 'utf8')
   const name = flow.match(/^name:\s*(.+)$/m)?.[1].trim() || path.basename(flowPath, '.yaml')
   const tags = flow.match(/^tags:\s*\[([^\]]*)\]/m)?.[1]
@@ -14,6 +14,21 @@ function addResult([flowPath, exitCode, startedAt, stoppedAt, outputDir]) {
   const passed = Number(exitCode) === 0
 
   fs.mkdirSync(outputDir, { recursive: true })
+
+  const attachments = []
+
+  function attach(filePath, name, type) {
+    if (!filePath || !fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
+      return
+    }
+
+    const source = `${crypto.randomUUID()}-attachment${path.extname(filePath)}`
+    fs.copyFileSync(filePath, path.join(outputDir, source))
+    attachments.push({ name, source, type })
+  }
+
+  attach(recordingPath, 'Screen recording', 'video/mp4')
+  attach(screenshotPath, 'Failure screenshot', 'image/png')
 
   const result = {
     uuid,
@@ -32,6 +47,7 @@ function addResult([flowPath, exitCode, startedAt, stoppedAt, outputDir]) {
       { name: 'suite', value: 'Authentication' },
       ...tags.map((tag) => ({ name: 'tag', value: tag })),
     ],
+    attachments,
   }
 
   fs.writeFileSync(path.join(outputDir, `${uuid}-result.json`), JSON.stringify(result, null, 2))
@@ -98,14 +114,14 @@ function sanitizeArtifacts([artifactsDir]) {
 
 const [command, ...args] = process.argv.slice(2)
 
-if (command === 'add' && args.length === 5) {
+if (command === 'add' && args.length === 7) {
   addResult(args)
 } else if (command === 'summary' && args.length === 2) {
   writeSummary(args)
 } else if (command === 'sanitize' && args.length === 1) {
   sanitizeArtifacts(args)
 } else {
-  console.error('Usage: allure-results.js add <flow> <exit-code> <start-ms> <stop-ms> <output-dir>')
+  console.error('Usage: allure-results.js add <flow> <exit-code> <start-ms> <stop-ms> <output-dir> <recording> <screenshot>')
   console.error('   or: allure-results.js summary <results-dir> <summary-file>')
   console.error('   or: allure-results.js sanitize <artifacts-dir>')
   process.exit(2)

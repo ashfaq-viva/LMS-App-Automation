@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   maestro-tests:
-    name: Maestro authentication tests
+    name: e2e tests
     runs-on: ubuntu-latest
     timeout-minutes: 45
     outputs:
@@ -132,6 +132,8 @@ jobs:
             artifacts/junit/
             artifacts/logs/
             artifacts/maestro/
+            artifacts/recordings/
+            artifacts/screenshots/
           if-no-files-found: warn
           retention-days: 7
 

@@ -27,10 +27,11 @@ if [[ "$#" -gt 0 ]]; then
   flows=("$@")
 else
   flows=(
-    "$ROOT_DIR"/.maestro/flows/auth/login/tc-*.yaml
+    "$ROOT_DIR"/.maestro/flows/auth/login/tc-0*.yaml
     "$ROOT_DIR"/.maestro/flows/auth/forgot-password/tc-*.yaml
     "$ROOT_DIR"/.maestro/flows/auth/check-mail/tc-*.yaml
     "$ROOT_DIR"/.maestro/flows/auth/create-account/tc-*.yaml
+    "$ROOT_DIR"/.maestro/flows/auth/login/tc-24-*.yaml
   )
 fi
 
@@ -38,12 +39,22 @@ mkdir -p \
   "$ARTIFACTS_DIR/junit" \
   "$ARTIFACTS_DIR/logs" \
   "$ARTIFACTS_DIR/maestro" \
+  "$ARTIFACTS_DIR/recordings" \
+  "$ARTIFACTS_DIR/screenshots" \
   "$ARTIFACTS_DIR/allure-results"
 
 suite_status=0
 
 for flow in "${flows[@]}"; do
   flow_id="$(basename "$flow" .yaml)"
+  recording_path="$ARTIFACTS_DIR/recordings/$flow_id.mp4"
+  screenshot_path="$ARTIFACTS_DIR/screenshots/$flow_id-failure.png"
+  device_recording="/sdcard/maestro-$flow_id.mp4"
+
+  rm -f "$recording_path" "$screenshot_path"
+  adb shell rm -f "$device_recording" >/dev/null 2>&1 || true
+  recording_pid="$(adb shell "screenrecord --bit-rate 1000000 --time-limit 180 '$device_recording' >/dev/null 2>&1 & echo \$!" 2>/dev/null || true)"
+  recording_pid="${recording_pid//$'\r'/}"
   started_at="$(($(date +%s) * 1000))"
 
   set +e
@@ -59,12 +70,33 @@ for flow in "${flows[@]}"; do
   set -e
 
   stopped_at="$(($(date +%s) * 1000))"
+
+  if [[ "$flow_status" -ne 0 ]]; then
+    if ! adb exec-out screencap -p > "$screenshot_path"; then
+      rm -f "$screenshot_path"
+    fi
+  fi
+
+  if [[ -n "$recording_pid" ]]; then
+    adb shell kill -INT "$recording_pid" >/dev/null 2>&1 || true
+    sleep 1
+  fi
+  adb pull "$device_recording" "$recording_path" >/dev/null 2>&1 || true
+  adb shell rm -f "$device_recording" >/dev/null 2>&1 || true
+
+  if [[ ! -s "$recording_path" ]]; then
+    printf 'Screen recording was not captured for %s.\n' "$flow" >&2
+    suite_status=1
+  fi
+
   node "$ROOT_DIR/.maestro/scripts/allure-results.js" add \
     "$flow" \
     "$flow_status" \
     "$started_at" \
     "$stopped_at" \
-    "$ARTIFACTS_DIR/allure-results"
+    "$ARTIFACTS_DIR/allure-results" \
+    "$recording_path" \
+    "$screenshot_path"
 
   if [[ "$flow_status" -ne 0 ]]; then
     suite_status=1
