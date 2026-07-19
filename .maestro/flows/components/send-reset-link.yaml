@@ -1,0 +1,5 @@
+appId: com.lms.app.dev
+---
+- tapOn: "Enter your email"
+- inputText: "${EMAIL}"
+- tapOn: "Send Link"

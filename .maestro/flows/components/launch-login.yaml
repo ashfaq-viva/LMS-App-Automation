@@ -1,0 +1,7 @@
+appId: com.lms.app.dev
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Welcome Back"
+    timeout: 30000

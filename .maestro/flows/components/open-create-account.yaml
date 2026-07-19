@@ -1,0 +1,4 @@
+appId: com.lms.app.dev
+---
+- tapOn: "Create Account\\nCreate Account"
+- assertVisible: "Create New Account"
