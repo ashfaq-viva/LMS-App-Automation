@@ -101,19 +101,22 @@ allure generate artifacts/allure-results
 
 ## GitHub Actions
 
-The `CI/CD` workflow runs on pull requests to `main`, pushes to `main`, and manual dispatches. It starts an Android API 30 emulator, installs the APK, runs every authentication flow sequentially, and uploads JUnit, Allure, screenshot, and debug artifacts for seven days.
+The `CI/CD` workflow runs only when manually dispatched. Merging or pushing to `main` does not trigger it. The workflow starts an Android API 30 emulator, installs the APK, runs every authentication flow sequentially, and uploads JUnit, Allure, screenshot, and debug artifacts for seven days.
 
 ### Repository Setup
 
 1. Create a GitHub Release.
 2. Upload the APK to the release with the exact asset name `app-development-debug.apk`.
 3. Add `VALID_EMAIL` and `VALID_PASSWORD` under **Settings > Secrets and variables > Actions**.
-4. Add `SMTP_USERNAME` and `SMTP_PASSWORD` for the email notification step, and configure its recipient in `.github/workflows/maestro-ci.yml`.
+4. Add `SMTP_USERNAME` with the Gmail sender address and `SMTP_PASSWORD` with that account's Google App Password. All four secrets are required by the workflow.
+5. Set `REPORT_RECIPIENT` in `.github/workflows/maestro-ci.yml` if the report should be sent to a different email address.
 
-Automatic runs use the APK from the latest release. For a manual run, open **Actions > CI/CD > Run workflow**, select the Git branch, and optionally enter a release tag. Leaving the release tag empty uses the latest release.
-
-Pull requests from forks do not run the emulator job because GitHub does not expose repository secrets to forked workflows.
+GitHub's **Run workflow** form does not support file-upload inputs. Upload the APK as a GitHub Release asset first, then open **Actions > CI/CD > Run workflow**, select the Git branch, and optionally enter that release tag. Leaving the release tag empty uses the latest release.
 
 ### Reports
 
 Each workflow run includes a pass/fail table in the GitHub Actions summary. Download the `maestro-results-*` artifact for the Allure HTML report, JUnit XML files, Maestro screenshots, console logs, and debug output. Open `artifacts/allure-report/index.html` from the downloaded artifact to view the report locally.
+
+The workflow also publishes the latest Allure report to GitHub Pages. Before the first run, open **Settings > Pages** and set **Source** to **GitHub Actions**. After deployment, the report URL appears in the `Deploy Allure report to GitHub Pages` job and in the repository's **Deployments** section.
+
+Console logs and Maestro debug files remain in the downloadable workflow artifact and are not embedded in the public Pages report. Test credentials are redacted from text-based artifacts before upload.
