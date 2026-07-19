@@ -1,0 +1,14 @@
+appId: com.lms.app.dev
+name: TC-11 Check mail page back to login
+tags: [auth, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-forgot-password.yaml
+- runFlow:
+    file: ../../components/send-reset-link.yaml
+    env:
+      EMAIL: "test@gmail.com"
+- assertVisible: "Check Your Mail"
+- assertVisible: "(?s)We sent a link to test@gmail\\.com.*Back to Login.*"
+- tapOn: "Back to Login"
+- assertVisible: "Get ready for live sports excitement. Stay connected and enjoy the game!"

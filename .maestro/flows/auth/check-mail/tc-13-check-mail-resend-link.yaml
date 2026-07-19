@@ -1,0 +1,17 @@
+appId: com.lms.app.dev
+name: TC-13 Check mail page resend link
+tags: [auth, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-forgot-password.yaml
+- runFlow:
+    file: ../../components/send-reset-link.yaml
+    env:
+      EMAIL: "test@gmail.com"
+- assertVisible: "Check Your Mail"
+- assertVisible: "(?s)We sent a link to test@gmail\\.com.*Back to Login.*"
+- extendedWaitUntil:
+    visible: "Resend Link\\nResend Link"
+    timeout: 65000
+- tapOn: "Resend Link\\nResend Link"
+- assertVisible: "Resend in .*s"
