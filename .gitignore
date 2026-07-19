@@ -1,0 +1,22 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Android application builds
+apps/*.apk
+apps/*.aab
+!apps/.gitkeep
+
+# Test output
+artifacts/*
+!artifacts/.gitkeep
+.maestro/screenshots/
+.maestro/recordings/
+/summary.txt
+
+# Editor and operating system files
+.DS_Store
+.idea/
+.vscode/
+opencode.json
