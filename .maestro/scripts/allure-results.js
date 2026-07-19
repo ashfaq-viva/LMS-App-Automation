@@ -2,7 +2,7 @@ const crypto = require('node:crypto')
 const fs = require('node:fs')
 const path = require('node:path')
 
-function addResult([flowPath, exitCode, startedAt, stoppedAt, logPath, outputDir]) {
+function addResult([flowPath, exitCode, startedAt, stoppedAt, outputDir]) {
   const flow = fs.readFileSync(flowPath, 'utf8')
   const name = flow.match(/^name:\s*(.+)$/m)?.[1].trim() || path.basename(flowPath, '.yaml')
   const tags = flow.match(/^tags:\s*\[([^\]]*)\]/m)?.[1]
@@ -12,10 +12,8 @@ function addResult([flowPath, exitCode, startedAt, stoppedAt, logPath, outputDir
   const relativePath = path.relative(process.cwd(), flowPath)
   const uuid = crypto.randomUUID()
   const passed = Number(exitCode) === 0
-  const attachmentName = `${uuid}-attachment.log`
 
   fs.mkdirSync(outputDir, { recursive: true })
-  fs.copyFileSync(logPath, path.join(outputDir, attachmentName))
 
   const result = {
     uuid,
@@ -34,7 +32,6 @@ function addResult([flowPath, exitCode, startedAt, stoppedAt, logPath, outputDir
       { name: 'suite', value: 'Authentication' },
       ...tags.map((tag) => ({ name: 'tag', value: tag })),
     ],
-    attachments: [{ name: 'Maestro console output', source: attachmentName, type: 'text/plain' }],
   }
 
   fs.writeFileSync(path.join(outputDir, `${uuid}-result.json`), JSON.stringify(result, null, 2))
@@ -68,14 +65,48 @@ function writeSummary([resultsDir, summaryPath]) {
   fs.appendFileSync(summaryPath, `${lines.join('\n')}\n`)
 }
 
+function sanitizeArtifacts([artifactsDir]) {
+  const secrets = [process.env.VALID_EMAIL, process.env.VALID_PASSWORD].filter(Boolean)
+  const textExtensions = new Set(['.json', '.log', '.txt', '.xml', '.yaml', '.yml'])
+
+  if (!fs.existsSync(artifactsDir) || secrets.length === 0) {
+    return
+  }
+
+  function sanitizeDirectory(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const entryPath = path.join(directory, entry.name)
+
+      if (entry.isDirectory()) {
+        sanitizeDirectory(entryPath)
+      } else if (entry.isFile() && textExtensions.has(path.extname(entry.name))) {
+        const content = fs.readFileSync(entryPath, 'utf8')
+        const sanitized = secrets.reduce(
+          (value, secret) => value.split(secret).join('[REDACTED]'),
+          content,
+        )
+
+        if (sanitized !== content) {
+          fs.writeFileSync(entryPath, sanitized)
+        }
+      }
+    }
+  }
+
+  sanitizeDirectory(artifactsDir)
+}
+
 const [command, ...args] = process.argv.slice(2)
 
-if (command === 'add' && args.length === 6) {
+if (command === 'add' && args.length === 5) {
   addResult(args)
 } else if (command === 'summary' && args.length === 2) {
   writeSummary(args)
+} else if (command === 'sanitize' && args.length === 1) {
+  sanitizeArtifacts(args)
 } else {
-  console.error('Usage: allure-results.js add <flow> <exit-code> <start-ms> <stop-ms> <log> <output-dir>')
+  console.error('Usage: allure-results.js add <flow> <exit-code> <start-ms> <stop-ms> <output-dir>')
   console.error('   or: allure-results.js summary <results-dir> <summary-file>')
+  console.error('   or: allure-results.js sanitize <artifacts-dir>')
   process.exit(2)
 }

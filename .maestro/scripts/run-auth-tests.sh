@@ -64,7 +64,6 @@ for flow in "${flows[@]}"; do
     "$flow_status" \
     "$started_at" \
     "$stopped_at" \
-    "$ARTIFACTS_DIR/logs/$flow_id.log" \
     "$ARTIFACTS_DIR/allure-results"
 
   if [[ "$flow_status" -ne 0 ]]; then

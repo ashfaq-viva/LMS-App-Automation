@@ -1,10 +1,6 @@
 name: CI/CD
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       release_tag:
@@ -16,18 +12,20 @@ permissions:
   contents: read
 
 concurrency:
-  group: maestro-${{ github.workflow }}-${{ github.ref }}
+  group: pages
   cancel-in-progress: true
 
 jobs:
   maestro-tests:
     name: Maestro authentication tests
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    outputs:
+      pages_artifact: ${{ steps.pages_upload.outcome }}
     env:
       APK_NAME: app-development-debug.apk
       MAESTRO_VERSION: 2.6.1
+      REPORT_RECIPIENT: ashfaq.ahmed@vivasoftltd.com
       VALID_EMAIL: ${{ secrets.VALID_EMAIL }}
       VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
 
@@ -36,9 +34,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate required secrets
+        env:
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         run: |
-          if [[ -z "$VALID_EMAIL" || -z "$VALID_PASSWORD" ]]; then
-            printf 'VALID_EMAIL and VALID_PASSWORD repository secrets are required.\n' >&2
+          if [[ -z "$VALID_EMAIL" || -z "$VALID_PASSWORD" || -z "$SMTP_USERNAME" || -z "$SMTP_PASSWORD" ]]; then
+            printf 'VALID_EMAIL, VALID_PASSWORD, SMTP_USERNAME, and SMTP_PASSWORD repository secrets are required.\n' >&2
             exit 1
           fi
 
@@ -67,6 +68,7 @@ jobs:
           node-version: '20'
 
       - name: Install Maestro and Allure
+        id: install_tools
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           npm install --global allure@3.14.3
@@ -95,14 +97,29 @@ jobs:
             .maestro/scripts/run-auth-tests.sh
 
       - name: Generate Allure report
-        if: always()
+        id: report
+        if: ${{ always() && steps.install_tools.outcome == 'success' }}
         run: |
           mkdir -p artifacts/allure-results
           allure generate artifacts/allure-results
 
+      - name: Upload Allure report for GitHub Pages
+        id: pages_upload
+        if: ${{ always() && steps.report.outcome == 'success' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: artifacts/allure-report
+
       - name: Add test summary
+        id: summary
+        if: ${{ always() && steps.report.outcome == 'success' }}
+        run: |
+          node .maestro/scripts/allure-results.js summary artifacts/allure-results "$GITHUB_STEP_SUMMARY"
+          node .maestro/scripts/allure-results.js summary artifacts/allure-results summary.txt
+
+      - name: Redact credentials from artifacts
         if: always()
-        run: node .maestro/scripts/allure-results.js summary artifacts/allure-results "$GITHUB_STEP_SUMMARY"
+        run: node .maestro/scripts/allure-results.js sanitize artifacts
 
       - name: Upload test artifacts
         if: always()
@@ -117,29 +134,37 @@ jobs:
             artifacts/maestro/
           if-no-files-found: warn
           retention-days: 7
-      
-      - name: Install mailx
-        run: sudo apt-get install -y mailutils
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Send email summary
+        if: ${{ always() && steps.summary.outcome == 'success' }}
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v18
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: Maestro report - ${{ github.repository }} - ${{ job.status }}
+          to: ${{ env.REPORT_RECIPIENT }}
+          from: ${{ secrets.SMTP_USERNAME }}
+          body: file://summary.txt
 
-      - name: Configure mailx for SMTP
-        run: |
-          echo "set smtp=smtps://smtp.gmail.com:465" >> ~/.mailrc
-          echo "set smtp-auth=login" >> ~/.mailrc
-          echo "set smtp-auth-user=${{ secrets.SMTP_USERNAME }}" >> ~/.mailrc
-          echo "set smtp-auth-password=${{ secrets.SMTP_PASSWORD }}" >> ~/.mailrc
-          echo "set ssl-verify=ignore" >> ~/.mailrc
+  deploy-report:
+    name: Deploy Allure report to GitHub Pages
+    needs: maestro-tests
+    if: ${{ always() && needs.maestro-tests.outputs.pages_artifact == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
 
-      - name: Extract Key Test Summary
-        run: |
-          if [ -f allure-report/widgets/summary.json ]; then
-              jq -r '"Report: \(.reportName) | Passed: \(.statistic.passed) | Failed: \(.statistic.failed) | Total: \(.statistic.total)"' allure-report/widgets/summary.json > summary.txt
-          else
-              echo "No summary found. Check if tests executed correctly." > summary.txt
-          fi
-
-      - name: Send Email with Allure Report
-        run: |
-          cat summary.txt | mailx -s "Allure Test Report Summary"  ashfaqahmed3339@gmail.com  # replace with your valid email
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
