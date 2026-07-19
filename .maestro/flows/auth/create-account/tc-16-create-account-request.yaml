@@ -1,0 +1,24 @@
+appId: com.lms.app.dev
+name: TC-16 Create account request
+tags: [auth, create-account, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml
+- runScript: ../../../scripts/generate-registration-email.js
+- runFlow:
+    file: ../../components/fill-create-account.yaml
+    env:
+      FIRST_NAME: "Rajib"
+      LAST_NAME: "Khan"
+      EMAIL: "${output.registrationEmail}"
+      PASSWORD: "Rajib@12"
+      CONFIRM_PASSWORD: "Rajib@12"
+- scrollUntilVisible:
+    element:
+      text: "Create Account"
+      enabled: true
+    direction: DOWN
+- tapOn:
+    text: "Create Account"
+    enabled: true
+- assertVisible: "Confirm Your Email"

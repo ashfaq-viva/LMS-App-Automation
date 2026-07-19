@@ -1,0 +1,6 @@
+appId: com.lms.app.dev
+name: TC-14 Navigate to create account
+tags: [auth, create-account, smoke]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml

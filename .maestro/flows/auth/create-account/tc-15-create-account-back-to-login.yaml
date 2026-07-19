@@ -1,0 +1,12 @@
+appId: com.lms.app.dev
+name: TC-15 Create account back to login
+tags: [auth, create-account, smoke]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml
+- scrollUntilVisible:
+    element:
+      text: "Login\\nLogin"
+    direction: DOWN
+- tapOn: "Login\\nLogin"
+- assertVisible: "Welcome Back"

@@ -1,0 +1,23 @@
+appId: com.lms.app.dev
+name: TC-19 Create account invalid email
+tags: [auth, create-account, validation]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml
+- runFlow:
+    file: ../../components/fill-create-account.yaml
+    env:
+      FIRST_NAME: "Rajib"
+      LAST_NAME: "Khan"
+      EMAIL: "test97"
+      PASSWORD: "Rajib@12"
+      CONFIRM_PASSWORD: "Rajib@12"
+- scrollUntilVisible:
+    element:
+      text: "Create Account"
+      enabled: true
+    direction: DOWN
+- tapOn:
+    text: "Create Account"
+    enabled: true
+- assertVisible: "Invalid email address"

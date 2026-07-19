@@ -1,0 +1,14 @@
+appId: com.lms.app.dev
+name: TC-18 Create account required fields
+tags: [auth, create-account, validation]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml
+- scrollUntilVisible:
+    element:
+      text: "Create Account"
+      enabled: false
+    direction: DOWN
+- assertVisible:
+    text: "Create Account"
+    enabled: false

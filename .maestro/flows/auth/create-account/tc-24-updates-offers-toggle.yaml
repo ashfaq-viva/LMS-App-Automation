@@ -1,0 +1,21 @@
+appId: com.lms.app.dev
+name: TC-24 Updates and offers toggle
+tags: [auth, create-account, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml
+- scrollUntilVisible:
+    element:
+      text: "Updates & Offers"
+    direction: DOWN
+- assertVisible:
+    checked: true
+    rightOf: "Updates & Offers"
+- tapOn: "Updates & Offers"
+- assertVisible:
+    checked: false
+    rightOf: "Updates & Offers"
+- tapOn: "Updates & Offers"
+- assertVisible:
+    checked: true
+    rightOf: "Updates & Offers"
