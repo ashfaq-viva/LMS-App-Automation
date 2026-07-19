@@ -1,0 +1,145 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag containing app-development-debug.apk (leave empty for latest)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maestro-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  maestro-tests:
+    name: Maestro authentication tests
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      APK_NAME: app-development-debug.apk
+      MAESTRO_VERSION: 2.6.1
+      VALID_EMAIL: ${{ secrets.VALID_EMAIL }}
+      VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required secrets
+        run: |
+          if [[ -z "$VALID_EMAIL" || -z "$VALID_PASSWORD" ]]; then
+            printf 'VALID_EMAIL and VALID_PASSWORD repository secrets are required.\n' >&2
+            exit 1
+          fi
+
+      - name: Download APK from GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          mkdir -p apps
+          if [[ -n "$RELEASE_TAG" ]]; then
+            gh release download "$RELEASE_TAG" --pattern "$APK_NAME" --dir apps --clobber
+          else
+            gh release download --pattern "$APK_NAME" --dir apps --clobber
+          fi
+          test -s "apps/$APK_NAME"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Maestro and Allure
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          npm install --global allure@3.14.3
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          "$HOME/.maestro/bin/maestro" --version
+          allure --version
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Maestro tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb install -r "apps/$APK_NAME"
+            .maestro/scripts/run-auth-tests.sh
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          mkdir -p artifacts/allure-results
+          allure generate artifacts/allure-results
+
+      - name: Add test summary
+        if: always()
+        run: node .maestro/scripts/allure-results.js summary artifacts/allure-results "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-results-${{ github.run_number }}
+          path: |
+            artifacts/allure-report/
+            artifacts/allure-results/
+            artifacts/junit/
+            artifacts/logs/
+            artifacts/maestro/
+          if-no-files-found: warn
+          retention-days: 7
+      
+      - name: Install mailx
+        run: sudo apt-get install -y mailutils
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Configure mailx for SMTP
+        run: |
+          echo "set smtp=smtps://smtp.gmail.com:465" >> ~/.mailrc
+          echo "set smtp-auth=login" >> ~/.mailrc
+          echo "set smtp-auth-user=${{ secrets.SMTP_USERNAME }}" >> ~/.mailrc
+          echo "set smtp-auth-password=${{ secrets.SMTP_PASSWORD }}" >> ~/.mailrc
+          echo "set ssl-verify=ignore" >> ~/.mailrc
+
+      - name: Extract Key Test Summary
+        run: |
+          if [ -f allure-report/widgets/summary.json ]; then
+              jq -r '"Report: \(.reportName) | Passed: \(.statistic.passed) | Failed: \(.statistic.failed) | Total: \(.statistic.total)"' allure-report/widgets/summary.json > summary.txt
+          else
+              echo "No summary found. Check if tests executed correctly." > summary.txt
+          fi
+
+      - name: Send Email with Allure Report
+        run: |
+          cat summary.txt | mailx -s "Allure Test Report Summary"  ashfaqahmed3339@gmail.com  # replace with your valid email
