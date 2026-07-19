@@ -1,0 +1,15 @@
+{
+  "name": "LMS Maestro Authentication Tests",
+  "output": "./artifacts/allure-report",
+  "open": false,
+  "plugins": {
+    "awesome": {
+      "options": {
+        "reportName": "LMS Maestro Authentication Tests",
+        "singleFile": false,
+        "reportLanguage": "en",
+        "open": false
+      }
+    }
+  }
+}
