@@ -6,3 +6,4 @@ appId: com.lms.app.dev
 - inputText: "${PASSWORD}"
 - hideKeyboard
 - tapOn: "Login"
+- assertVisible: "Home\nHome"
