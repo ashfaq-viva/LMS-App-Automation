@@ -26,12 +26,16 @@ fi
 if [[ "$#" -gt 0 ]]; then
   flows=("$@")
 else
-  flows=(
-    "$ROOT_DIR"/.maestro/flows/auth/login/tc-0*.yaml
-    "$ROOT_DIR"/.maestro/flows/auth/forgot-password/tc-*.yaml
-    "$ROOT_DIR"/.maestro/flows/auth/check-mail/tc-*.yaml
-    "$ROOT_DIR"/.maestro/flows/auth/create-account/tc-*.yaml
-    "$ROOT_DIR"/.maestro/flows/auth/login/tc-24-*.yaml
+  flows=()
+  while IFS=$'\t' read -r _ flow; do
+    flows+=("$flow")
+  done < <(
+    for flow in "$ROOT_DIR"/.maestro/flows/auth/*/tc-*.yaml; do
+      filename="${flow##*/}"
+      case_number="${filename#tc-}"
+      case_number="${case_number%%-*}"
+      printf '%d\t%s\n' "$((10#$case_number))" "$flow"
+    done | sort -n
   )
 fi
 

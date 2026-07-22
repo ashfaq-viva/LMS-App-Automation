@@ -1,5 +1,5 @@
 appId: com.lms.app.dev
-name: TC-12 Check mail page  back icon
+name: TC-16 Check mail page back icon
 tags: [auth, regression]
 ---
 - runFlow: ../../components/launch-login.yaml

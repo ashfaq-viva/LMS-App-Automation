@@ -1,5 +1,5 @@
 appId: com.lms.app.dev
-name: TC-23 Updates and offers toggle
+name: TC-27 Updates and offers toggle
 tags: [auth, create-account, regression]
 ---
 - runFlow: ../../components/launch-login.yaml

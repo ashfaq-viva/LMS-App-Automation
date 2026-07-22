@@ -1,0 +1,29 @@
+appId: com.lms.app.dev
+name: TC-30 Toggle create account confirmation password independently
+tags: [auth, create-account, regression]
+---
+- runFlow: ../../components/launch-login.yaml
+- runFlow: ../../components/open-create-account.yaml
+- tapOn:
+    text: "Password"
+    index: 0
+- inputText: "Primary@123"
+- scrollUntilVisible:
+    element:
+      text: "Re-type Password \\*"
+    direction: DOWN
+- tapOn: "Password"
+- inputText: "Confirm@12"
+- hideKeyboard
+- tapOn:
+    id: "password_visibility_toggle"
+    index: 1
+- assertVisible: "\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*"
+- assertVisible: "Confirm@12"
+- assertNotVisible: "Primary@123"
+- tapOn:
+    id: "password_visibility_toggle"
+    index: 1
+- assertVisible: "\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*"
+- assertVisible: "\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*"
+- assertNotVisible: "Confirm@12"

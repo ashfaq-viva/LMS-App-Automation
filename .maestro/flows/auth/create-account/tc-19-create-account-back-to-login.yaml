@@ -1,5 +1,5 @@
 appId: com.lms.app.dev
-name: TC-15 Create account back to login
+name: TC-19 Create account back to login
 tags: [auth, create-account, smoke]
 ---
 - runFlow: ../../components/launch-login.yaml

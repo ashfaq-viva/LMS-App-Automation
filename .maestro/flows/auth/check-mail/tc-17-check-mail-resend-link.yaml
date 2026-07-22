@@ -1,5 +1,5 @@
 appId: com.lms.app.dev
-name: TC-13 Check mail page resend link
+name: TC-17 Check mail page resend link
 tags: [auth, regression]
 ---
 - runFlow: ../../components/launch-login.yaml

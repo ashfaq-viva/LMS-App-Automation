@@ -4,7 +4,7 @@ Maestro end-to-end automation workspace for the Android LMS application.
 
 ## Test Coverage
 
-The authentication suite contains 24 automated Maestro flows (`TC-01` through `TC-24`) covering login, password reset, check-mail, and account creation. Two additional approved cases (`TC-25` and `TC-26`) are blocked by missing accessibility identifiers. Shared flows keep common navigation and form actions reusable. See [`test-cases/test-cases.csv`](test-cases/test-cases.csv) for the complete test inventory.
+The authentication suite contains 31 automated Maestro flows (`TC-01` through `TC-31`) covering login, password reset, check-mail, and account creation. Shared flows keep common navigation and form actions reusable. See [`test-cases/test-cases.csv`](test-cases/test-cases.csv) for the complete test inventory.
 
 Flows use the Android application ID `com.lms.app.dev`. Smoke, regression, and validation coverage is identified by each flow's `tags`; the `smoke/` and `regression/` directories are placeholders for future standalone suites.
 
@@ -38,10 +38,10 @@ adb install -r apps/app-development-debug.apk
 ├── .maestro/
 │   ├── flows/
 │   │   ├── auth/
-│   │   │   ├── login/            # TC-01 through TC-06, plus TC-24
-│   │   │   ├── forgot-password/  # TC-07 through TC-10
-│   │   │   ├── check-mail/       # TC-11 through TC-13
-│   │   │   └── create-account/   # TC-14 through TC-23
+│   │   │   ├── login/            # TC-01 through TC-10
+│   │   │   ├── forgot-password/  # TC-11 through TC-14
+│   │   │   ├── check-mail/       # TC-15 through TC-17
+│   │   │   └── create-account/   # TC-18 through TC-31
 │   │   ├── components/            # Shared navigation and form actions
 │   │   ├── regression/            # Reserved standalone suite
 │   │   └── smoke/                 # Reserved standalone suite

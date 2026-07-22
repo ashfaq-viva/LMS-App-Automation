@@ -1,5 +1,5 @@
 appId: com.lms.app.dev
-name: TC-18 Create account required fields
+name: TC-22 Create account required fields
 tags: [auth, create-account, validation]
 ---
 - runFlow: ../../components/launch-login.yaml
