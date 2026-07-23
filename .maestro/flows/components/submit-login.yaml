@@ -1,9 +1,12 @@
 appId: com.lms.app.dev
 ---
 - tapOn: "name@gmail.com"
-- inputText: "${EMAIL}"
+- inputText:
+    text: "${EMAIL}"
+    label: Enter email
 - tapOn: "Password"
-- inputText: "${PASSWORD}"
+- inputText:
+    text: "${PASSWORD}"
+    label: Enter password
 - hideKeyboard
 - tapOn: "Login"
-- assertVisible: "Home\nHome"

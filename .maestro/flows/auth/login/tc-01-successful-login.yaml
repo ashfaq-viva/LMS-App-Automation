@@ -8,3 +8,4 @@ tags: [auth, smoke]
     env:
       EMAIL: "${VALID_EMAIL}"
       PASSWORD: "${VALID_PASSWORD}"
+- assertVisible: "Home\nHome"

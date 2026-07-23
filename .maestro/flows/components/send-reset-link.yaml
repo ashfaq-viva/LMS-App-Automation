@@ -1,5 +1,7 @@
 appId: com.lms.app.dev
 ---
 - tapOn: "Enter your email"
-- inputText: "${EMAIL}"
+- inputText:
+    text: "${EMAIL}"
+    label: Enter recovery email
 - tapOn: "Send Link"

@@ -88,7 +88,11 @@ Run one case:
   .maestro/flows/auth/login/tc-05-invalid-email.yaml
 ```
 
-The suite runs flows sequentially because simultaneous Maestro CLI sessions conflict on one emulator. Close Maestro Studio before running the CLI suite. Generated JUnit files, logs, Maestro debug output, per-flow recordings, failure screenshots, and Allure results are written under `artifacts/`.
+The suite runs flows sequentially and displays each Maestro command live in the terminal. The runner generates a JUnit file after each flow while also preserving console logs, Maestro debug output, per-flow recordings, failure screenshots, and Allure results under `artifacts/`.
+
+Each flow is displayed with its position in the suite, test name, result, and duration. A final summary lists the total, passed and failed counts, artifact errors, total duration, failed flow names, and report locations. Interactive terminals use colored output; set `NO_COLOR=1` to force plain output.
+
+Simultaneous Maestro sessions conflict on one emulator. Close Maestro Studio and avoid Maestro MCP interactions while the CLI suite is running.
 
 The runner expects Maestro at `$HOME/.maestro/bin/maestro`. Set `MAESTRO_BIN` to use another installation path, or set `MAESTRO_ARTIFACTS_DIR` to change the output directory.
 

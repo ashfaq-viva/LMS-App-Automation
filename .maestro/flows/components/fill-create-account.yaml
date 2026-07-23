@@ -1,18 +1,28 @@
 appId: com.lms.app.dev
 ---
 - tapOn: "First Name"
-- inputText: "${FIRST_NAME}"
+- inputText:
+    text: "${FIRST_NAME}"
+    label: Enter first name
 - tapOn: "Last Name"
-- inputText: "${LAST_NAME}"
+- inputText:
+    text: "${LAST_NAME}"
+    label: Enter last name
 - tapOn: "name@gmail.com"
-- inputText: "${EMAIL}"
+- inputText:
+    text: "${EMAIL}"
+    label: Enter registration email
 - tapOn:
     text: "Password"
     index: 0
-- inputText: "${PASSWORD}"
+- inputText:
+    text: "${PASSWORD}"
+    label: Enter password
 - scrollUntilVisible:
     element:
       text: "Re-type Password \\*"
     direction: DOWN
 - tapOn: "Password"
-- inputText: "${CONFIRM_PASSWORD}"
+- inputText:
+    text: "${CONFIRM_PASSWORD}"
+    label: Enter password confirmation
