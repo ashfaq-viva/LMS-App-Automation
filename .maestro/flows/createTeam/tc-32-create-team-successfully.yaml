@@ -1,0 +1,45 @@
+appId: com.lms.app.dev
+name: TC-32 Create team successfully
+tags: [team, create-team, smoke]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- runFlow:
+    file: ../components/create-team.yaml
+    env:
+      TEAM_NAME: "${TEAM_NAME}"
+      COUNTRY: "Australia"
+      EXPECTED_REGION: "Adelaide Central"
+- extendedWaitUntil:
+    visible: "Your Team Code"
+    timeout: 30000
+- assertVisible: "${TEAM_NAME}"
+- copyTextFrom:
+    leftOf:
+      text: "Copy"
+- evalScript: ${output.teamCode = maestro.copiedText.trim()}
+- assertTrue: ${output.teamCode.length >= 4 && output.teamCode.length <= 15}
+- tapOn: "Copy"
+- tapOn: "Copy invite message"
+- setClipboard: ${output.teamCode}
+- addMedia:
+    - "../../assets/team-logo.png"
+- tapOn: "Upload team logo"
+- extendedWaitUntil:
+    visible: "Photo taken on .*"
+    timeout: 10000
+- tapOn: "Photo taken on .*"
+- extendedWaitUntil:
+    visible: "Remove"
+    timeout: 30000
+- tapOn: "Remove"
+- assertNotVisible: "Remove"
+- tapOn: "Upload team logo"
+- extendedWaitUntil:
+    visible: "Photo taken on .*"
+    timeout: 10000
+- tapOn: "Photo taken on .*"
+- extendedWaitUntil:
+    visible: "Remove"
+    timeout: 30000
+- tapOn: "Continue|Manage team"

@@ -26,8 +26,10 @@ jobs:
       APK_NAME: app-development-debug.apk
       MAESTRO_VERSION: 2.6.1
       REPORT_RECIPIENT: ashfaq.ahmed@vivasoftltd.com
-      VALID_EMAIL: ${{ secrets.VALID_EMAIL }}
-      VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
+      USER1_EMAIL: ${{ secrets.USER1_EMAIL }}
+      USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
+      USER2_EMAIL: ${{ secrets.USER2_EMAIL }}
+      USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -38,8 +40,8 @@ jobs:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         run: |
-          if [[ -z "$VALID_EMAIL" || -z "$VALID_PASSWORD" || -z "$SMTP_USERNAME" || -z "$SMTP_PASSWORD" ]]; then
-            printf 'VALID_EMAIL, VALID_PASSWORD, SMTP_USERNAME, and SMTP_PASSWORD repository secrets are required.\n' >&2
+          if [[ -z "$USER1_EMAIL" || -z "$USER1_PASSWORD" || -z "$USER2_EMAIL" || -z "$USER2_PASSWORD" || -z "$SMTP_USERNAME" || -z "$SMTP_PASSWORD" ]]; then
+            printf 'USER1_EMAIL, USER1_PASSWORD, USER2_EMAIL, USER2_PASSWORD, SMTP_USERNAME, and SMTP_PASSWORD repository secrets are required.\n' >&2
             exit 1
           fi
 

@@ -1,0 +1,14 @@
+appId: com.lms.app.dev
+name: TC-43 Reject invalid team code
+tags: [team, join-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-join-team.yaml
+- tapOn: "XXXX_XXXXX"
+- inputText:
+    text: "${INVALID_TEAM_CODE}"
+    label: Enter invalid team code
+- tapOn:
+    text: "Join Team"
+    index: 1
+- assertVisible: "Invalid invitation code."

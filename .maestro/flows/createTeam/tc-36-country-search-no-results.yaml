@@ -1,0 +1,20 @@
+appId: com.lms.app.dev
+name: TC-36 Recover from no country search results
+tags: [team, create-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- tapOn: "Denmark"
+- assertVisible: "Country"
+- tapOn: "Search"
+- inputText:
+    text: "NoSuchCountryXYZ"
+    label: Search for an unavailable country
+- assertVisible: "No results found"
+- eraseText
+- inputText:
+    text: "Aus"
+    label: Search for an available country
+- assertNotVisible: "No results found"
+- assertVisible: "Australia"
+- assertVisible: "Austria"

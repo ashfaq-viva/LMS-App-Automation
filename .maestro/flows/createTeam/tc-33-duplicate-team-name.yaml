@@ -1,0 +1,13 @@
+appId: com.lms.app.dev
+name: TC-33 Reject duplicate team name
+tags: [team, create-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- runFlow:
+    file: ../components/create-team.yaml
+    env:
+      TEAM_NAME: "${TEAM_NAME}"
+      COUNTRY: "Australia"
+      EXPECTED_REGION: "Adelaide Central"
+- assertVisible: "Name unavailable. Please enter a unique team name to continue your registration."

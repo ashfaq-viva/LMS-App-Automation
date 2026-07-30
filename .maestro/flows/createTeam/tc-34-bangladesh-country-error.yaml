@@ -1,0 +1,13 @@
+appId: com.lms.app.dev
+name: TC-34 Reject Bangladesh team creation
+tags: [team, create-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- runFlow:
+    file: ../components/create-team.yaml
+    env:
+      TEAM_NAME: "${BANGLADESH_TEAM_NAME}"
+      COUNTRY: "Bangladesh"
+      EXPECTED_REGION: "Bangladesh National Champs"
+- assertVisible: "Creation Failed."

@@ -45,8 +45,8 @@ if [[ -f "$ENV_FILE" ]]; then
   set +a
 fi
 
-if [[ -z "${VALID_EMAIL:-}" || -z "${VALID_PASSWORD:-}" ]]; then
-  printf 'VALID_EMAIL and VALID_PASSWORD must be set in the environment or .env.\n' >&2
+if [[ -z "${USER1_EMAIL:-}" || -z "${USER1_PASSWORD:-}" ]]; then
+  printf 'USER1_EMAIL and USER1_PASSWORD must be set in the environment or .env.\n' >&2
   exit 1
 fi
 
@@ -62,7 +62,10 @@ else
   while IFS=$'\t' read -r _ flow; do
     flows+=("$flow")
   done < <(
-    for flow in "$ROOT_DIR"/.maestro/flows/auth/*/tc-*.yaml; do
+    for flow in \
+      "$ROOT_DIR"/.maestro/flows/auth/*/tc-*.yaml \
+      "$ROOT_DIR"/.maestro/flows/createTeam/tc-*.yaml \
+      "$ROOT_DIR"/.maestro/flows/joinTeam/tc-*.yaml; do
       filename="${flow##*/}"
       case_number="${filename#tc-}"
       case_number="${case_number%%-*}"
@@ -77,7 +80,41 @@ mkdir -p \
   "$ARTIFACTS_DIR/maestro" \
   "$ARTIFACTS_DIR/recordings" \
   "$ARTIFACTS_DIR/screenshots" \
-  "$ARTIFACTS_DIR/allure-results"
+  "$ARTIFACTS_DIR/allure-results" \
+  "$ARTIFACTS_DIR/extracted_data"
+
+TEAM_DATA_FILE="$ARTIFACTS_DIR/extracted_data/team-data.json"
+contains_team_setup=false
+requires_user2=false
+
+for flow in "${flows[@]}"; do
+  if [[ "${flow##*/}" == tc-32-* ]]; then
+    contains_team_setup=true
+  fi
+
+  if [[ "${flow##*/}" == tc-39-* || "${flow##*/}" == tc-40-* ]]; then
+    requires_user2=true
+  fi
+done
+
+if [[ "$requires_user2" == true && (-z "${USER2_EMAIL:-}" || -z "${USER2_PASSWORD:-}") ]]; then
+  printf 'USER2_EMAIL and USER2_PASSWORD must be set when running TC-39 or TC-40.\n' >&2
+  exit 1
+fi
+
+stored_team_name=''
+stored_team_code=''
+
+if [[ "$contains_team_setup" == false && -f "$TEAM_DATA_FILE" ]]; then
+  stored_team_name="$(node "$ROOT_DIR/.maestro/scripts/team-data.js" read teamName "$TEAM_DATA_FILE" 2>/dev/null || true)"
+  stored_team_code="$(node "$ROOT_DIR/.maestro/scripts/team-data.js" read teamCode "$TEAM_DATA_FILE" 2>/dev/null || true)"
+fi
+
+run_suffix="$(($(date +%s) % 1000000))"
+TEAM_NAME="${TEAM_NAME:-${stored_team_name:-Test Team $run_suffix}}"
+TEAM_CODE="${TEAM_CODE:-$stored_team_code}"
+BANGLADESH_TEAM_NAME="${BANGLADESH_TEAM_NAME:-LMS BD $run_suffix}"
+INVALID_TEAM_CODE="${INVALID_TEAM_CODE:-ZZ$run_suffix}"
 
 suite_status=0
 passed_count=0
@@ -119,8 +156,14 @@ for flow in "${flows[@]}"; do
 
   set +e
   "$MAESTRO_BIN" test \
-    -e VALID_EMAIL="$VALID_EMAIL" \
-    -e VALID_PASSWORD="$VALID_PASSWORD" \
+    -e USER1_EMAIL="$USER1_EMAIL" \
+    -e USER1_PASSWORD="$USER1_PASSWORD" \
+    -e USER2_EMAIL="${USER2_EMAIL:-}" \
+    -e USER2_PASSWORD="${USER2_PASSWORD:-}" \
+    -e TEAM_NAME="$TEAM_NAME" \
+    -e TEAM_CODE="$TEAM_CODE" \
+    -e BANGLADESH_TEAM_NAME="$BANGLADESH_TEAM_NAME" \
+    -e INVALID_TEAM_CODE="$INVALID_TEAM_CODE" \
     --format NOOP \
     "$maestro_ansi_flag" \
     --test-output-dir "$ARTIFACTS_DIR/maestro/$flow_id" \
@@ -130,6 +173,22 @@ for flow in "${flows[@]}"; do
   set -e
 
   stopped_at="$(($(date +%s) * 1000))"
+
+  if [[ "$flow_status" -eq 0 && "$flow_id" == tc-32-* ]]; then
+    hierarchy="$(adb exec-out uiautomator dump /dev/tty 2>/dev/null || true)"
+
+    set +e
+    TEAM_CODE="$(printf '%s' "$hierarchy" | node "$ROOT_DIR/.maestro/scripts/team-data.js" save "$TEAM_NAME" "$TEAM_DATA_FILE")"
+    extraction_status="$?"
+    set -e
+
+    if [[ "$extraction_status" -ne 0 || -z "$TEAM_CODE" ]]; then
+      printf '%s[FAIL]%s Team data could not be persisted from TC-32.\n' "$RED" "$RESET" >&2
+      flow_status=1
+    else
+      printf 'Stored team data: %s\n' "$ARTIFACTS_DISPLAY/extracted_data/team-data.json"
+    fi
+  fi
 
   if [[ "$flow_status" -ne 0 ]]; then
     if ! adb exec-out screencap -p > "$screenshot_path"; then

@@ -1,0 +1,4 @@
+appId: com.lms.app.dev
+---
+- tapOn: "Create a Team"
+- assertVisible: "Create New Team"

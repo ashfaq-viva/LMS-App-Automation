@@ -1,0 +1,23 @@
+appId: com.lms.app.dev
+name: TC-37 Search and select a region
+tags: [team, create-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- tapOn: "Denmark"
+- tapOn: "Australia"
+- tapOn: "Adelaide Central"
+- assertVisible: "Select Region"
+- assertVisible: "Search"
+- tapOn: "Search"
+- inputText:
+    text: "Adelaide South"
+    label: Search for a region
+- assertVisible: "Adelaide South"
+- assertNotVisible: "Albany"
+- tapOn:
+    text: "Adelaide South"
+    index: 1
+    label: Select Adelaide South result
+- assertVisible: "Adelaide South"
+- assertNotVisible: "Select Region"

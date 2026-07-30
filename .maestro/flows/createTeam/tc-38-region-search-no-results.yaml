@@ -1,0 +1,22 @@
+appId: com.lms.app.dev
+name: TC-38 Recover from no region search results
+tags: [team, create-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- tapOn: "Denmark"
+- tapOn: "Australia"
+- tapOn: "Adelaide Central"
+- assertVisible: "Select Region"
+- tapOn: "Search"
+- inputText:
+    text: "NoSuchRegionXYZ"
+    label: Search for an unavailable region
+- assertVisible: "No results found"
+- eraseText
+- inputText:
+    text: "Adelaide"
+    label: Search for an available region
+- assertNotVisible: "No results found"
+- assertVisible: "Adelaide Central"
+- assertVisible: "Adelaide South"

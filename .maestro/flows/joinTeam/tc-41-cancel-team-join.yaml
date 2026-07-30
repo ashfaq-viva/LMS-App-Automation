@@ -1,0 +1,13 @@
+appId: com.lms.app.dev
+name: TC-41 Cancel team join confirmation
+tags: [team, join-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-join-team.yaml
+- runFlow:
+    file: ../components/find-team.yaml
+    env:
+      TEAM_NAME: "${TEAM_NAME}"
+      TEAM_CODE: "${TEAM_CODE}"
+- tapOn: "Cancel"
+- assertVisible: "Join a Team"

@@ -9,7 +9,7 @@ tags: [auth, create-account, regression]
     env:
       FIRST_NAME: "Rajib"
       LAST_NAME: "Khan"
-      EMAIL: "${VALID_EMAIL}"
+      EMAIL: "${USER1_EMAIL}"
       PASSWORD: "Rajib@12"
       CONFIRM_PASSWORD: "Rajib@12"
 - scrollUntilVisible:

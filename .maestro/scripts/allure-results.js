@@ -3,7 +3,12 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 function redactSecrets(content) {
-  const redacted = [process.env.VALID_EMAIL, process.env.VALID_PASSWORD]
+  const redacted = [
+    process.env.USER1_EMAIL,
+    process.env.USER1_PASSWORD,
+    process.env.USER2_EMAIL,
+    process.env.USER2_PASSWORD,
+  ]
     .filter(Boolean)
     .reduce((value, secret) => value.split(secret).join('[REDACTED]'), content)
 

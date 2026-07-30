@@ -1,0 +1,12 @@
+appId: com.lms.app.dev
+---
+- tapOn: "Enter team name"
+- inputText:
+    text: "${TEAM_NAME}"
+    label: Enter team name
+- tapOn: "Denmark"
+- tapOn: "${COUNTRY}"
+- assertVisible: "${EXPECTED_REGION}"
+- tapOn:
+    text: "Create Team"
+    index: 1

@@ -1,0 +1,12 @@
+appId: com.lms.app.dev
+---
+- tapOn: "XXXX_XXXXX"
+- inputText:
+    text: "${TEAM_CODE}"
+    label: Enter stored team code
+- tapOn:
+    text: "Join Team"
+    index: 1
+- extendedWaitUntil:
+    visible: "${TEAM_NAME}"
+    timeout: 30000

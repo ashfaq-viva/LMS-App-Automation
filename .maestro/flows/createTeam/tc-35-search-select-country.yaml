@@ -1,0 +1,19 @@
+appId: com.lms.app.dev
+name: TC-35 Search and select a country
+tags: [team, create-team, regression]
+---
+- runFlow: ../components/successful-login.yaml
+- runFlow: ../components/open-create-team.yaml
+- tapOn: "Denmark"
+- assertVisible: "Country"
+- assertVisible: "Search"
+- tapOn: "Search"
+- inputText:
+    text: "Aus"
+    label: Search for a country
+- assertVisible: "Australia"
+- assertVisible: "Austria"
+- assertNotVisible: "Bangladesh"
+- tapOn: "Australia"
+- assertVisible: "Australia"
+- assertNotVisible: "Country"

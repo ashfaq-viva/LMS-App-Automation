@@ -1,0 +1,19 @@
+appId: com.lms.app.dev
+name: TC-39 Join team successfully
+tags: [team, join-team, smoke]
+---
+- runFlow:
+    file: ../components/successful-login.yaml
+    env:
+      USER1_EMAIL: "${USER2_EMAIL}"
+      USER1_PASSWORD: "${USER2_PASSWORD}"
+- runFlow: ../components/open-join-team.yaml
+- runFlow:
+    file: ../components/find-team.yaml
+    env:
+      TEAM_NAME: "${TEAM_NAME}"
+      TEAM_CODE: "${TEAM_CODE}"
+- tapOn: "Confirm & Join Team"
+- assertVisible: "You're in!\nYou've successfully joined the team."
+- tapOn: "Team Dashboard"
+- assertVisible: "Home\nHome"

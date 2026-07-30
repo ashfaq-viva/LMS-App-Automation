@@ -1,0 +1,4 @@
+appId: com.lms.app.dev
+---
+- tapOn: "Join a Team"
+- assertVisible: "Enter the Team code given to you by your Organiser"
