@@ -1,0 +1,12 @@
+appId: com.lms.app.dev
+name: TC-52 Update date of birth
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- tapOn:
+    below:
+      text: "Date of Birth \\*"
+- assertVisible: "Select date.*"
+- assertVisible: "Switch to input"
+- tapOn: "Cancel"
+- assertVisible: "Edit Profile"

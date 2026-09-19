@@ -1,0 +1,39 @@
+appId: com.lms.app.dev
+name: TC-48 Update first and last name
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- copyTextFrom:
+    below:
+      text: "First Name \\*"
+- evalScript: ${output.originalFirstName = maestro.copiedText}
+- copyTextFrom:
+    below:
+      text: "Last Name \\*"
+- evalScript: ${output.originalLastName = maestro.copiedText}
+- tapOn:
+    below:
+      text: "First Name \\*"
+- eraseText
+- inputText: "ProfileFirst"
+- tapOn:
+    below:
+      text: "Last Name \\*"
+- eraseText
+- inputText: "ProfileLast"
+- tapOn:
+    text: "Save"
+    index: 0
+- assertVisible: "ProfileFirst"
+- assertVisible: "ProfileLast"
+- tapOn: "ProfileFirst"
+- eraseText
+- inputText: ${output.originalFirstName}
+- tapOn: "ProfileLast"
+- eraseText
+- inputText: ${output.originalLastName}
+- tapOn:
+    text: "Save"
+    index: 0
+- assertVisible: ${output.originalFirstName}
+- assertVisible: ${output.originalLastName}

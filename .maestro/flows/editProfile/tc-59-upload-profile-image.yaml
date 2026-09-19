@@ -1,0 +1,20 @@
+appId: com.lms.app.dev
+name: TC-59 Upload a profile image
+tags: [profile, edit-profile, media]
+---
+- runFlow: components/open-edit-profile.yaml
+- addMedia:
+    - "../../assets/team-logo.png"
+- tapOn:
+    point: "229,262"
+- tapOn: "Replace Existing Photo|Upload New Photo"
+- extendedWaitUntil:
+    visible: "Photo, .*"
+    timeout: 10000
+- tapOn:
+    text: "Photo, .*"
+    index: 0
+- tapOn:
+    text: "Save"
+    index: 0
+- assertVisible: "Edit Profile"

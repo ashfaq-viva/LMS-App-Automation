@@ -1,0 +1,20 @@
+appId: com.lms.app.dev
+name: TC-50 Update city options after changing country
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- copyTextFrom:
+    below:
+      text: "Country"
+- evalScript: ${output.originalCountry = maestro.copiedText}
+- tapOn: ${output.originalCountry}
+- tapOn: "Australia"
+- tapOn:
+    text: "Select"
+    index: 0
+- assertVisible: "Select City"
+- assertVisible: "Adelaide Central"
+- assertVisible: "Adelaide South"
+- tapOn:
+    point: "10,100"
+- assertVisible: "Edit Profile"

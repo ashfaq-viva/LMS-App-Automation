@@ -1,0 +1,13 @@
+appId: com.lms.app.dev
+name: TC-55 Validate required profile fields
+tags: [profile, edit-profile, validation]
+---
+- runFlow: components/open-edit-profile.yaml
+- tapOn:
+    below:
+      text: "First Name \\*"
+- eraseText
+- tapOn:
+    text: "Save"
+    index: 0
+- assertVisible: "First Name is required."

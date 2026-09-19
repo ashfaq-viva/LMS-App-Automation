@@ -65,6 +65,8 @@ else
     for flow in \
       "$ROOT_DIR"/.maestro/flows/auth/*/tc-*.yaml \
       "$ROOT_DIR"/.maestro/flows/createTeam/tc-*.yaml \
+      "$ROOT_DIR"/.maestro/flows/editProfile/tc-*.yaml \
+      "$ROOT_DIR"/.maestro/flows/editProfile/*/tc-*.yaml \
       "$ROOT_DIR"/.maestro/flows/joinTeam/tc-*.yaml; do
       filename="${flow##*/}"
       case_number="${filename#tc-}"

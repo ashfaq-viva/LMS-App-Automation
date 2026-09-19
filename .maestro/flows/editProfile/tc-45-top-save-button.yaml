@@ -1,0 +1,27 @@
+appId: com.lms.app.dev
+name: TC-45 Save profile changes with the top Save button
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- copyTextFrom:
+    below:
+      text: "First Name \\*"
+- evalScript: ${output.originalValue = maestro.copiedText}
+- tapOn:
+    below:
+      text: "First Name \\*"
+- eraseText
+- inputText: "TopSaveTest"
+- tapOn:
+    text: "Save"
+    index: 0
+- extendedWaitUntil:
+    visible: "TopSaveTest"
+    timeout: 10000
+- tapOn: "TopSaveTest"
+- eraseText
+- inputText: ${output.originalValue}
+- tapOn:
+    text: "Save"
+    index: 0
+- assertVisible: ${output.originalValue}

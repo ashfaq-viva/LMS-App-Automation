@@ -1,0 +1,20 @@
+appId: com.lms.app.dev
+name: TC-58 Discard unsaved profile changes
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- copyTextFrom:
+    below:
+      text: "First Name \\*"
+- evalScript: ${output.originalValue = maestro.copiedText}
+- tapOn:
+    below:
+      text: "First Name \\*"
+- eraseText
+- inputText: "UnsavedProfile"
+- tapOn:
+    text: "Back"
+    retryTapIfNoChange: false
+- tapOn: "Edit Profile"
+- assertVisible: ${output.originalValue}
+- assertNotVisible: "UnsavedProfile"

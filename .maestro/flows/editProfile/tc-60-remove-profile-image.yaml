@@ -1,0 +1,26 @@
+appId: com.lms.app.dev
+name: TC-60 Remove a profile image
+tags: [profile, edit-profile, media]
+---
+- runFlow: components/open-edit-profile.yaml
+- tapOn:
+    point: "229,262"
+- tapOn: "Remove Photo"
+- tapOn:
+    text: "Save"
+    index: 0
+- addMedia:
+    - "../../assets/team-logo.png"
+- tapOn:
+    point: "229,262"
+- tapOn: "Replace Existing Photo|Upload New Photo"
+- extendedWaitUntil:
+    visible: "Photo, .*"
+    timeout: 10000
+- tapOn:
+    text: "Photo, .*"
+    index: 0
+- tapOn:
+    text: "Save"
+    index: 0
+- assertVisible: "Edit Profile"

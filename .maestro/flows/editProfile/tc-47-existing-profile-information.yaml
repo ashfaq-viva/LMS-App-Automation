@@ -1,0 +1,22 @@
+appId: com.lms.app.dev
+name: TC-47 Display existing profile information
+tags: [profile, edit-profile, smoke]
+---
+- runFlow: components/open-edit-profile.yaml
+- assertVisible: "Personal Information"
+- assertVisible: "First Name \\*"
+- assertVisible: "Last Name \\*"
+- assertVisible: "Country"
+- assertVisible: "City"
+- assertVisible: "Nationality"
+- assertVisible: "Date of Birth \\*"
+- runFlow: components/scroll-to-profile-bottom.yaml
+- assertVisible: "Gender \\*"
+- assertVisible: "Batting Style"
+- assertVisible: "Bowling Style"
+- assertVisible: "Contact Information"
+- assertVisible: "Phone number \\*"
+- assertVisible: "Email"
+- assertVisible: "Security"
+- assertVisible: "Update Password"
+- assertVisible: "Email Preferences"

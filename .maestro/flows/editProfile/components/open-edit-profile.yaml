@@ -1,0 +1,60 @@
+appId: com.lms.app.dev
+---
+- launchApp
+- runFlow:
+    when:
+      visible: "Replace Existing Photo|Upload New Photo"
+    commands:
+      - tapOn:
+          point: "10,100"
+- runFlow:
+    when:
+      visible: "Select (Country|Country Code|City|Nationality|Gender|Batting Style|Bowling Style)"
+    commands:
+      - tapOn:
+          point: "10,100"
+- runFlow:
+    when:
+      visible: "Select date.*"
+    commands:
+      - tapOn: "Cancel"
+- runFlow:
+    when:
+      visible: "Update Your Password"
+    commands:
+      - tapOn:
+          text: "Back"
+          retryTapIfNoChange: false
+- runFlow:
+    when:
+      visible: "Marketing Emails"
+    commands:
+      - tapOn:
+          text: "Back"
+          retryTapIfNoChange: false
+- runFlow:
+    when:
+      visible: "Personal Information"
+    commands:
+      - tapOn:
+          text: "Back"
+          retryTapIfNoChange: false
+      - tapOn: "Edit Profile"
+- runFlow:
+    when:
+      visible: "Welcome Back"
+    file: ../../components/submit-login.yaml
+    env:
+      EMAIL: "${USER1_EMAIL}"
+      PASSWORD: "${USER1_PASSWORD}"
+- extendedWaitUntil:
+    visible: "Home\\nHome|Personal Information"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: "Home\\nHome"
+    commands:
+      - tapOn: "Edit Profile"
+- extendedWaitUntil:
+    visible: "Personal Information"
+    timeout: 30000

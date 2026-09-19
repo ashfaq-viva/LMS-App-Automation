@@ -1,0 +1,7 @@
+appId: com.lms.app.dev
+---
+- scrollUntilVisible:
+    element: "Save"
+    direction: DOWN
+    timeout: 300000
+    speed: 100

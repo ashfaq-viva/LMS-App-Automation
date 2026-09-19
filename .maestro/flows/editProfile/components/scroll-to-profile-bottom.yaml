@@ -1,0 +1,6 @@
+appId: com.lms.app.dev
+---
+- scrollUntilVisible:
+    element: "Email Preferences"
+    direction: DOWN
+    timeout: 15000

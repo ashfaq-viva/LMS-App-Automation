@@ -1,0 +1,18 @@
+appId: com.lms.app.dev
+name: TC-54 Update batting and bowling styles
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- runFlow: components/scroll-to-profile-bottom.yaml
+- tapOn:
+    text: "N/A"
+    index: 0
+- assertVisible: "Select Batting Style"
+- tapOn: "Right-hand bat"
+- assertVisible: "Right-hand bat"
+- tapOn:
+    text: "N/A"
+    index: 0
+- assertVisible: "Select Bowling Style"
+- tapOn: "Right-arm medium"
+- assertVisible: "Right-arm medium"

@@ -1,0 +1,11 @@
+appId: com.lms.app.dev
+name: TC-51 Update nationality
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- tapOn:
+    text: "Select"
+    index: 1
+- assertVisible: "Select Nationality"
+- tapOn: "Bangladesh"
+- assertVisible: "Bangladesh"

@@ -1,0 +1,43 @@
+appId: com.lms.app.dev
+name: TC-65 Save and restore Marketing Emails preference
+tags: [profile, email-preferences, regression]
+---
+- runFlow: ../components/open-email-preferences.yaml
+- copyTextFrom:
+    rightOf:
+      text: "Marketing Emails"
+- evalScript: ${output.originalState = maestro.copiedText}
+- tapOn:
+    rightOf:
+      text: "Marketing Emails"
+- runFlow: ../components/scroll-to-email-save.yaml
+- tapOn: "Save"
+- runFlow:
+    when:
+      visible: "Marketing Emails"
+    commands:
+      - tapOn:
+          text: "Back"
+          retryTapIfNoChange: false
+- tapOn: "Email Preferences"
+- copyTextFrom:
+    rightOf:
+      text: "Marketing Emails"
+- assertTrue: ${maestro.copiedText !== output.originalState}
+- tapOn:
+    rightOf:
+      text: "Marketing Emails"
+- runFlow: ../components/scroll-to-email-save.yaml
+- tapOn: "Save"
+- runFlow:
+    when:
+      visible: "Marketing Emails"
+    commands:
+      - tapOn:
+          text: "Back"
+          retryTapIfNoChange: false
+- tapOn: "Email Preferences"
+- copyTextFrom:
+    rightOf:
+      text: "Marketing Emails"
+- assertTrue: ${maestro.copiedText === output.originalState}

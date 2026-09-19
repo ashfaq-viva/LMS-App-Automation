@@ -1,0 +1,20 @@
+appId: com.lms.app.dev
+name: TC-66 Discard an unsaved Marketing Emails change
+tags: [profile, email-preferences, regression]
+---
+- runFlow: ../components/open-email-preferences.yaml
+- copyTextFrom:
+    rightOf:
+      text: "Marketing Emails"
+- evalScript: ${output.originalState = maestro.copiedText}
+- tapOn:
+    rightOf:
+      text: "Marketing Emails"
+- tapOn:
+    text: "Back"
+    retryTapIfNoChange: false
+- tapOn: "Email Preferences"
+- copyTextFrom:
+    rightOf:
+      text: "Marketing Emails"
+- assertTrue: ${maestro.copiedText === output.originalState}

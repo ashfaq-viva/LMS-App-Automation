@@ -4,7 +4,7 @@ Maestro end-to-end automation workspace for the Android LMS application.
 
 ## Test Coverage
 
-The suite contains 44 automated Maestro flows (`TC-01` through `TC-44`) covering authentication, team creation, and team joining. Shared flows keep common navigation and form actions reusable. See [`test-cases/test-cases.csv`](test-cases/test-cases.csv) for the complete test inventory.
+The inventory contains `TC-01` through `TC-66`: 64 automated Maestro flows, one disabled password-change case (`TC-63`), and one blocked preference-save case (`TC-65`). Coverage includes authentication, team management, Edit Profile, Update Password, and Email Preferences. See [`test-cases/test-cases.csv`](test-cases/test-cases.csv) for the complete inventory.
 
 Flows use the Android application ID `com.lms.app.dev`. Smoke, regression, and validation coverage is identified by each flow's `tags`; the `smoke/` and `regression/` directories are placeholders for future standalone suites.
 
@@ -45,6 +45,7 @@ adb install -r apps/app-development-debug.apk
 │   │   │   ├── check-mail/       # TC-15 through TC-17
 │   │   │   └── create-account/   # TC-18 through TC-31
 │   │   ├── createTeam/            # TC-32 through TC-38
+│   │   ├── editProfile/            # TC-45 through TC-66 (TC-63 disabled)
 │   │   ├── joinTeam/              # TC-39 through TC-44
 │   │   ├── components/            # Shared navigation and form actions
 │   │   ├── regression/            # Reserved standalone suite
@@ -98,6 +99,10 @@ Run one case:
 The suite runs flows sequentially by test-case number and displays each Maestro command live in the terminal. The runner generates a JUnit file after each flow while also preserving console logs, Maestro debug output, per-flow recordings, failure screenshots, and Allure results under `artifacts/`.
 
 TC-32 generates the team fixture used by TC-33, TC-39 through TC-42, and TC-44. After TC-32 completes, the runner extracts the displayed code and writes the latest name and code to `artifacts/extracted_data/team-data.json`, replacing the previous values. Dependent cases receive those values directly, and they can also be run separately using the latest saved data. Override `TEAM_NAME`, `TEAM_CODE`, `BANGLADESH_TEAM_NAME`, or `INVALID_TEAM_CODE` in the environment when a fixed value is required.
+
+TC-45 through TC-66 use User 1. Mutable profile and preference cases restore their original values before finishing. TC-63 is stored as `tc-63-change-password.yaml.disabled` and is intentionally excluded from runner discovery because changing the shared account password requires guaranteed recovery handling.
+
+TC-65 has an authored flow but is blocked on the current User 1 data: Email Preferences contains an unusually large fixture and league list, and a five-minute automated scroll still cannot reach the bottom Save button. TC-66 remains automated because it verifies unsaved Back behavior without scrolling to Save.
 
 Each flow is displayed with its position in the suite, test name, result, and duration. A final summary lists the total, passed and failed counts, artifact errors, total duration, failed flow names, and report locations. Interactive terminals use colored output; set `NO_COLOR=1` to force plain output.
 

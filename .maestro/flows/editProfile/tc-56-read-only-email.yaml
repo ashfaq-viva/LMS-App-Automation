@@ -1,0 +1,10 @@
+appId: com.lms.app.dev
+name: TC-56 Validate Email as read-only User 1 data
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- runFlow: components/scroll-to-profile-bottom.yaml
+- assertVisible: "Email"
+- assertVisible:
+    text: "${USER1_EMAIL}"
+    enabled: false

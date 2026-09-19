@@ -1,0 +1,20 @@
+appId: com.lms.app.dev
+name: TC-49 Select a country from the bottom sheet
+tags: [profile, edit-profile, regression]
+---
+- runFlow: components/open-edit-profile.yaml
+- copyTextFrom:
+    below:
+      text: "Country"
+- evalScript: ${output.originalCountry = maestro.copiedText}
+- evalScript: "${output.temporaryCountry = output.originalCountry === 'Australia' ? 'Bangladesh' : 'Australia'}"
+- tapOn: ${output.originalCountry}
+- assertVisible: "Select Country"
+- assertVisible: "Search"
+- assertVisible: "Australia"
+- assertVisible: "Bangladesh"
+- tapOn: ${output.temporaryCountry}
+- assertVisible: ${output.temporaryCountry}
+- tapOn: ${output.temporaryCountry}
+- tapOn: ${output.originalCountry}
+- assertVisible: ${output.originalCountry}
